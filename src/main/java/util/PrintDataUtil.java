@@ -12,11 +12,12 @@ public final class PrintDataUtil {
 
     public static void printResults(List<Map<String, Object>> results) {
         for (Map<String, Object> listItem : results) {
-            System.out.println();
-            for (Map.Entry<String, Object> entry : listItem.entrySet()) {
-                Object value = entry.getValue();
-                System.out.printf("%-16s %s%n", entry.getKey(), value);
-            }
+//            System.out.println();
+//            for (Map.Entry<String, Object> entry : listItem.entrySet()) {
+//                Object value = entry.getValue();
+//                System.out.printf("%-16s %s%n", entry.getKey(), value);
+//            }
+            printResults(listItem);
         }
     }
 

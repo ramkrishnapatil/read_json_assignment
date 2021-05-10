@@ -2,7 +2,7 @@ package model;
 
 public class User extends Data {
 
-    private static final String entityName = "Users";
+    private static final String ENTITY_NAME = "Users";
 
     public User(String resource) {
         super(resource);
@@ -10,7 +10,7 @@ public class User extends Data {
 
     @Override
     public String getDataName() {
-        return entityName;
+        return ENTITY_NAME;
     }
 
 }

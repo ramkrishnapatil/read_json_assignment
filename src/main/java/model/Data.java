@@ -14,7 +14,7 @@ public abstract class Data {
     private static final String FIELD_INDENT = " ";
     private final Set<String> fields;
     protected static final String ID_KEY = "_id";
-    private List<Map<String, Object>> jsonData;
+    private List<Map<String, Object>> dataList;
     private Map<String, Integer> idToRecordNb;
 
     /**
@@ -22,8 +22,8 @@ public abstract class Data {
      * @param fileName Name of a file in the resources directory
      */
     protected Data(String fileName) {
-        this.jsonData = ResourceLoader.loadFromJsonResource(fileName);
-        this.fields = DataSearchUtility.searchableFields(jsonData);
+        this.dataList = ResourceLoader.loadFromJsonResource(fileName);
+        this.fields = DataSearchUtility.searchableFields(dataList);
         putRecordNbToId();
     }
 
@@ -31,8 +31,8 @@ public abstract class Data {
         idToRecordNb = HashBiMap.create();
         if (hasData()) {
             try {
-                for (int recordNb = 0; recordNb < jsonData.size(); recordNb++) {
-                    String id = jsonData.get(recordNb).get(ID_KEY).toString();
+                for (int recordNb = 0; recordNb < dataList.size(); recordNb++) {
+                    String id = dataList.get(recordNb).get(ID_KEY).toString();
                     idToRecordNb.put(id, recordNb);
                 }
             } catch (Exception exception) {
@@ -54,7 +54,7 @@ public abstract class Data {
      * @return true if there is data otherwise false
      */
     public boolean hasData() {
-        return !jsonData.isEmpty() && !fields.isEmpty();
+        return !dataList.isEmpty() && !fields.isEmpty();
     }
 
     /**
@@ -79,7 +79,7 @@ public abstract class Data {
      *         search field and have a value that matches the search value
      */
     public List<Map<String, Object>> search(String searchField, String searchValue) {
-        return DataSearchUtility.search(jsonData, searchField, searchValue);
+        return DataSearchUtility.search(dataList, searchField, searchValue);
     }
 
     public abstract String getDataName();
@@ -96,7 +96,7 @@ public abstract class Data {
     public void searchIdAndPrintRecord(Set<String> searchValues) {
         if (isSearchableField(ID_KEY)) {
             searchValues.forEach(searchValue -> {
-                Map<String, Object> results = jsonData.get(idToRecordNb.get(searchValue));
+                Map<String, Object> results = dataList.get(idToRecordNb.get(searchValue));
                 System.out.print("\nPrinting " + getDataName() + " for id : " + searchValue);
                 PrintDataUtil.printResults(results);
                 results.clear();

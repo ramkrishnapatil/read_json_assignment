@@ -2,7 +2,7 @@ package model;
 
 public class Ticket extends Data {
 
-    private static final String entityName = "Tickets";
+    private static final String ENTITY_NAME = "Tickets";
 
     public Ticket(String resource) {
         super(resource);
@@ -10,7 +10,7 @@ public class Ticket extends Data {
 
     @Override
     public String getDataName() {
-        return entityName;
+        return ENTITY_NAME;
     }
 
 }

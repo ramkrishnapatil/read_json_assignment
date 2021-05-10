@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -22,9 +23,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public final class ResourceLoader {
 
     private static final String RESOURCE_PATH = "src/main/resources/";
+    private static final String ERROR_REASON = "reason";
 
     private ResourceLoader() {
-        // prohibit instantiation
+        // instantiation not required
     }
 
     /**
@@ -41,14 +43,13 @@ public final class ResourceLoader {
             File usersFile = Paths.get(RESOURCE_PATH + jsonFile).toFile();
             data = mapper.readValue(usersFile, ArrayList.class);
         } catch (NullPointerException npe) {
-            System.err.println("Unable to open jsonFile: " + jsonFile);
-            npe.printStackTrace();
+            System.err.println("Unable to open jsonFile: " + jsonFile + " : " + npe.getMessage());
         } catch (JsonParseException jse) {
-            System.err.println("Invalid data in jsonFile: " + jsonFile);
-            jse.printStackTrace();
+            System.err.println("Invalid data in jsonFile: " + jsonFile + " : "  + jse.getMessage());
+        } catch (JsonMappingException jme) {
+            System.err.println("Error while loading jsonFile: " + jsonFile + " : "  + jme.getMessage());
         } catch (IOException ioe) {
-            System.err.println("Error while loading jsonFile: " + jsonFile);
-            ioe.printStackTrace();
+            System.err.println("Error while loading jsonFile: " + jsonFile + " : "  + ioe.getMessage());
         }
 
         return data;
