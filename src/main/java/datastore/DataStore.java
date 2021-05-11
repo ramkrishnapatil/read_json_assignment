@@ -1,44 +1,40 @@
-package model;
+package datastore;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.HashBiMap;
-import util.DataSearchUtility;
-import util.PrintUtil;
-import util.ResourceLoader;
+import data.Data;
+import datautil.DataSearchUtility;
+import datautil.ResourceLoader;
 
-public abstract class Data {
+public abstract class DataStore {
 
     private static final String FIELD_INDENT = " ";
     private final Set<String> fields;
     protected static final String ID_KEY = "_id";
-    private List<Map<String, Object>> dataList;
-    private Map<String, Integer> idToRecordNb;
+    private Map<String, Data> idToDataMap;
 
     /**
      * Construct data from json file
-     * @param fileName Name of a file in the resources directory
+     * @param fileName Name of a file
      */
-    protected Data(String fileName) {
-        this.dataList = ResourceLoader.loadFromJsonResource(fileName);
+    public DataStore(String fileName) {
+        List<Map<String, Object>> dataList = ResourceLoader.loadFromJsonResource(fileName);
         this.fields = DataSearchUtility.searchableFields(dataList);
-        putRecordNbToId();
-    }
-
-    private void putRecordNbToId() {
-        idToRecordNb = HashBiMap.create();
-        if (hasData()) {
-            try {
-                for (int recordNb = 0; recordNb < dataList.size(); recordNb++) {
-                    // assumption is that each record will have id.
-                    String id = dataList.get(recordNb).get(ID_KEY).toString();
-                    idToRecordNb.put(id, recordNb);
-                }
-            } catch (Exception exception) {
-                System.out.println(" Error while storing data : " + exception.getMessage());
-            }
+        //store the data in datastore by id
+        try {
+            idToDataMap = new HashMap<>();
+            dataList.forEach(record -> {
+                // Assume that id will always exist
+                String id = record.get(ID_KEY).toString();
+                Data data = new Data(id, record);
+                idToDataMap.put(id, data);
+            });
+        } catch (Exception exception) {
+            System.out.println(" Error while storing data : " + exception.getMessage());
         }
     }
 
@@ -55,7 +51,7 @@ public abstract class Data {
      * @return true if there is data otherwise false
      */
     public boolean hasData() {
-        return !dataList.isEmpty() && !fields.isEmpty();
+        return !idToDataMap.isEmpty() && !fields.isEmpty();
     }
 
     /**
@@ -71,16 +67,14 @@ public abstract class Data {
      * Search the data for items that have the given search field
      * and whose value matches (or contains in the case of lists) the given
      * search value.
-     *
-     * @see DataSearchUtility#search(List, String, String)
-     *
-     * @param searchField Field/key within the maps to match upon
-     * @param searchValue Value to look for in the search field
+     * @param searchField Field name
+     * @param searchValue field value
      * @return List of data items that contain a field with a name of the
-     *         search field and have a value that matches the search value
+     *         search field and matches the search value
      */
-    public List<Map<String, Object>> search(String searchField, String searchValue) {
-        return DataSearchUtility.search(dataList, searchField, searchValue);
+    public List<Data> search(String searchField, String searchValue) {
+        System.out.println("Searching " + getDataName() + " for " + searchField + " with a value of " + searchValue);
+        return DataSearchUtility.search(idToDataMap, searchField, searchValue);
     }
 
     public abstract String getDataName();
@@ -94,14 +88,16 @@ public abstract class Data {
         System.out.println();
     }
 
-    public void searchIdAndPrintRecord(Set<String> searchValues) {
+    public List<Data> searchDataStore(Set<String> searchValues) {
+        List<Data> results = new ArrayList<>();
         if (isSearchableField(ID_KEY)) {
             searchValues.forEach(searchValue -> {
-                Map<String, Object> results = dataList.get(idToRecordNb.get(searchValue));
+                Data record = idToDataMap.get(searchValue);
                 System.out.print("\nPrinting " + getDataName() + " for id : " + searchValue);
-                PrintUtil.printResults(results);
-                results.clear();
+                results.add(record);
             });
         }
+        return results;
     }
+
 }

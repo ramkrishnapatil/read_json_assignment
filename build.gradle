@@ -8,7 +8,8 @@ repositories {
     mavenCentral()
 }
 
-mainClassName = 'search.ZendeskSearchMain'
+//mainClassName = 'search.ZendeskSearchMain'
+mainClassName = 'datasearch.ZendeskSearchMain'
 
 dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.9.3'
@@ -21,3 +22,4 @@ dependencies {
 run {
     standardInput = System.in
 }
+

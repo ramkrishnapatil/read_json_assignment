@@ -8,7 +8,7 @@ package util;
 import java.util.List;
 import java.util.Map;
 
-public final class PrintDataUtil {
+public final class PrintUtil {
 
     public static void printResults(List<Map<String, Object>> results) {
         for (Map<String, Object> listItem : results) {
