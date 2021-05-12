@@ -1,5 +1,12 @@
 package datasearch;
 
+import static datautil.PrintUtil.HYPENS_LINE;
+import static datautil.PrintUtil.INPUT_PROMPT;
+import static datautil.PrintUtil.NEW_LINE;
+import static datautil.PrintUtil.QUIT_STRING;
+import static datautil.PrintUtil.SEARCH_FIELD_NAME;
+import static datautil.PrintUtil.SEARCH_FIELD_VALUE;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
@@ -13,24 +20,12 @@ import datastore.Users;
 import datautil.PrintUtil;
 
 public class ZendeskSearchApp {
-    private static final String INPUT_PROMPT = "* ";
-    private static final String SEARCH_TABLES_OPTIONS = "\nSelect 1)Users or 2)Tickets or 3)Organizations or 4)Back to Main menu";
-    private static final String SEARCH_FIELD_NAME = "Enter search term";
-    private static final String SEARCH_FIELD_VALUE = "Enter search value";
-    private static final String SEARCH_MENU_SPACE = "\t\t";
-    private static final String SEARCH_OPTIONS = SEARCH_MENU_SPACE + "Select search options\n"
-                    + SEARCH_MENU_SPACE + "* Press 1 to search Zendesk\n"
-                    + SEARCH_MENU_SPACE + "* Press 2 to view list of searchable fields\n"
-                    + SEARCH_MENU_SPACE + "* Type 'quit' to exit";
-    private static final String ORGANIZATION_ID = "organization_id";
-    private static final String QUIT_STRING = "quit";
-
     private final Users users;
     private final Tickets tickets;
     private final Organizations organizations;
 
     /**
-     * Default constructor. This will load the data into objects.
+     * Default constructor. This will load the data into java objects.
      */
     public ZendeskSearchApp() {
         users = new Users("users.json");
@@ -39,23 +34,23 @@ public class ZendeskSearchApp {
     }
 
     private static void printGlobalSearchInformation() {
-        System.out.println("Welcome to Zendesk Search\n"
+        PrintUtil.printData("\nWelcome to Zendesk Search\n"
                         + "Type 'quit' to exit at any time, Press 'Enter' to continue\n");
     }
 
     private static void printSearchInformation() {
-        System.out.println(SEARCH_OPTIONS);
+        PrintUtil.printData(PrintUtil.SEARCH_OPTIONS);
     }
 
     private static void printSearchTablesInformation() {
-        System.out.println(SEARCH_TABLES_OPTIONS);
+        PrintUtil.printData(PrintUtil.SEARCH_TABLES_OPTIONS);
     }
 
     public void searchData(Scanner scanner) {
         String menuOption = "";
-        while (!QUIT_STRING.equalsIgnoreCase(menuOption) && !"q".equalsIgnoreCase(menuOption)) {
+        while (!PrintUtil.QUIT_STRING.equalsIgnoreCase(menuOption) && !"q".equalsIgnoreCase(menuOption)) {
             printSearchTablesInformation();
-            System.out.print(INPUT_PROMPT);
+            System.out.print(PrintUtil.INPUT_PROMPT);
             menuOption = scanner.nextLine().trim();
 
             switch (menuOption) {
@@ -67,7 +62,7 @@ public class ZendeskSearchApp {
             case "4":
                 return;
             default:
-                System.out.println(" Invalid Option ");
+                PrintUtil.printData(" Invalid Option ");
                 break;
             }
         }
@@ -84,14 +79,16 @@ public class ZendeskSearchApp {
             data = tickets;
             break;
         case "3":
-        default:
             data = organizations;
             break;
+        default:
+            PrintUtil.printData("Invalid option");
+            return;
         }
 
         if (!data.hasData()) {
-            System.out.println();
-            System.out.println("Nothing to search!");
+            PrintUtil.printData(PrintUtil.NEW_LINE);
+            PrintUtil.printData("Nothing to search!");
             return;
         }
 
@@ -99,10 +96,7 @@ public class ZendeskSearchApp {
         String searchValue = promptForSearchValue(scanner);
         List<Data> results = data.search(searchField, searchValue);
 
-        PrintUtil.printResults(results);
-        if (!results.isEmpty()) {
-            searchRelatedDatastore(menuOption, results);
-        }
+        searchRelatedDatastore(menuOption, results);
     }
 
     /**
@@ -111,23 +105,34 @@ public class ZendeskSearchApp {
      * @param results Results searched
      */
     private void searchRelatedDatastore(String menuOption, List<Data> results) {
+        if (results.isEmpty()) {
+            PrintUtil.printResults(results);
+            return;
+        }
         //If the organization_id and tickets/users id are same then we will need two sets
         Set<String> idValues = new HashSet<>();
         switch (menuOption) {
         case "1":
-            results.forEach(result -> idValues.add(result.getFieldValue(ORGANIZATION_ID).toString()));
-            //            tickets.searchIdAndPrintRecord(idValues);
-            PrintUtil.printResults(organizations.searchDataStore(idValues));
-            break;
         case "2":
-            results.forEach(result -> idValues.add(result.getFieldValue(ORGANIZATION_ID).toString()));
-            // Do not know the relation of tickets
-            //            users.searchIdAndPrintRecord(idValues);
-            PrintUtil.printResults(organizations.searchDataStore(idValues));
+            // Currently do not the relation of users and tickets so not implemented
+            // Otherwise it will be case 2 will be separate.
+            results.forEach(result -> {
+                if (result.getFields().containsKey(PrintUtil.ORGANIZATION_ID)) {
+                    idValues.add(result.getFieldValue(PrintUtil.ORGANIZATION_ID).toString());
+                }
+            });
+            PrintUtil.printResults(results);
+            if (!idValues.isEmpty()) {
+                PrintUtil.printResults(organizations.searchDataStoreById(idValues));
+            }
             break;
         case "3":
-            //            users.searchIdAndPrintRecord(searchField, searchValue);
-            //            tickets.searchIdAndPrintRecord(searchField, searchValue);
+            results.forEach(result -> idValues.add(result.getId()));
+            PrintUtil.printResults(results);
+            if (!idValues.isEmpty()) {
+                PrintUtil.printResults(users.searchDataStoreByField(PrintUtil.ORGANIZATION_ID, idValues));
+                PrintUtil.printResults(tickets.searchDataStoreByField(PrintUtil.ORGANIZATION_ID, idValues));
+            }
             break;
         default:
             break;
@@ -145,8 +150,7 @@ public class ZendeskSearchApp {
 
         boolean validField;
         do {
-            System.out.println();
-            System.out.println(SEARCH_FIELD_NAME);
+            PrintUtil.printData(SEARCH_FIELD_NAME);
             System.out.print(INPUT_PROMPT);
             searchableField = scanner.nextLine().trim();
             if (QUIT_STRING.equalsIgnoreCase(searchableField)) {
@@ -155,8 +159,9 @@ public class ZendeskSearchApp {
 
             validField = data.isSearchableField(searchableField);
             if (!validField) {
-                System.out.println("Invalid field, try again. Valid fields are : ");
+                PrintUtil.printData("Invalid field, try again. Valid fields are : ");
                 data.printSearchableFields();
+                PrintUtil.printData(HYPENS_LINE);
             }
         } while (!validField);
 
@@ -169,8 +174,7 @@ public class ZendeskSearchApp {
      * @return search field value
      */
     private static String promptForSearchValue(Scanner scanner) {
-        System.out.println();
-        System.out.println(SEARCH_FIELD_VALUE);
+        PrintUtil.printData(SEARCH_FIELD_VALUE);
         System.out.print(INPUT_PROMPT);
         String searchValue = scanner.nextLine().trim();
         if (QUIT_STRING.equalsIgnoreCase(searchValue)) {
@@ -187,7 +191,7 @@ public class ZendeskSearchApp {
      * Application execution begins here.
      */
     public void run() {
-        System.out.println();
+        PrintUtil.printData(NEW_LINE);
 
         try (Scanner scanner = new Scanner(System.in)) {
             String menuOption = "";
@@ -205,6 +209,7 @@ public class ZendeskSearchApp {
                     users.printSearchableFields();
                     tickets.printSearchableFields();
                     organizations.printSearchableFields();
+                    PrintUtil.printData(HYPENS_LINE);
                     break;
                 default:
                     break;

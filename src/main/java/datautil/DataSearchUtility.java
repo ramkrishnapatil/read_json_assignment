@@ -30,6 +30,12 @@ public final class DataSearchUtility {
             return results;
         }
 
+        // If searching by key
+        if (searchField.equals(PrintUtil.ID_KEY) && data.containsKey(PrintUtil.ID_KEY)) {
+            results.add(data.get(searchValue));
+            return results;
+        }
+
         for (Map.Entry<String, Data> records : data.entrySet()) {
             Data dataItem = records.getValue();
             Object fieldValue = dataItem.getFieldValue(searchField);

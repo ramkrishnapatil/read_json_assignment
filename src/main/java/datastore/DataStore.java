@@ -24,18 +24,18 @@ public abstract class DataStore {
     public DataStore(String fileName) {
         List<Map<String, Object>> dataList = ResourceLoader.loadFromJsonResource(fileName);
         this.fields = DataSearchUtility.searchableFields(dataList);
-        //store the data in datastore by id
-        try {
             idToDataMap = new HashMap<>();
             dataList.forEach(record -> {
                 // Assume that id will always exist
-                String id = record.get(ID_KEY).toString();
-                Data data = new Data(id, record);
-                idToDataMap.put(id, data);
+                //store the data in datastore by id
+                try {
+                    String id = record.get(ID_KEY).toString();
+                    Data data = new Data(id, record);
+                    idToDataMap.put(id, data);
+                } catch (Exception exception) {
+                    System.out.println(" Error while storing data by id : " + exception.getMessage());
+                }
             });
-        } catch (Exception exception) {
-            System.out.println(" Error while storing data : " + exception.getMessage());
-        }
     }
 
     /**
@@ -88,16 +88,35 @@ public abstract class DataStore {
         System.out.println();
     }
 
-    public List<Data> searchDataStore(Set<String> searchValues) {
+    public List<Data> searchDataStoreById(Set<String> searchValues) {
         List<Data> results = new ArrayList<>();
         if (isSearchableField(ID_KEY)) {
             searchValues.forEach(searchValue -> {
                 Data record = idToDataMap.get(searchValue);
-                System.out.print("\nPrinting " + getDataName() + " for id : " + searchValue);
-                results.add(record);
+                if (record != null) {
+                    System.out.print("\nPrinting " + getDataName() + " for id : " + searchValue);
+                    results.add(record);
+                }
             });
         }
         return results;
+    }
+
+    public List<Data> searchDataStoreByField(String searchField, Set<String> searchValues) {
+
+        // is searching by key
+        if (ID_KEY.equals(searchField)) {
+            return searchDataStoreById(searchValues);
+        }
+        else {
+            List<Data> results = new ArrayList<>();
+            idToDataMap.forEach((s, data) -> {
+                if (data.getFields().containsKey(searchField) && searchValues.contains(data.getFieldValue(searchField).toString())) {
+                    results.add(data);
+                }
+            });
+            return results;
+        }
     }
 
 }

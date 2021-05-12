@@ -3,7 +3,6 @@ package data;
 import java.util.HashMap;
 import java.util.Map;
 
-//public abstract class Data {
 public class Data {
 
     private Map<String, Object> fields;
