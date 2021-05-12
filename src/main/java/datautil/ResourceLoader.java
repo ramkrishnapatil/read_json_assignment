@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public final class ResourceLoader {
 
     private static final String RESOURCE_PATH = "src/main/resources/";
-    private static final String ERROR_REASON = "reason";
 
     private ResourceLoader() {
         // instantiation not required

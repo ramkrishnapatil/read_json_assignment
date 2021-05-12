@@ -3,19 +3,19 @@ package data;
 import java.util.HashMap;
 import java.util.Map;
 
+import datautil.PrintUtil;
+
 public class Data {
 
     private Map<String, Object> fields;
-    private String id;
 
-    public Data(String id, Map<String, Object> fieldsMap) {
+    public Data(Map<String, Object> fieldsMap) {
         fields = new HashMap<>();
-        this.id = id;
         this.fields.putAll(fieldsMap);
     }
 
     public String getId() {
-        return id;
+        return fields.get(PrintUtil.ID_KEY).toString();
     }
 
     public Map<String, Object> getFields() {

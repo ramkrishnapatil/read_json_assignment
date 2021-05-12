@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import data.Data;
@@ -21,25 +22,32 @@ public final class PrintUtil {
     public static final String ORGANIZATION_ID = "organization_id";
     public static final String ID_KEY = "_id";
     public static final String QUIT_STRING = "quit";
+    public static final String INVALID_OPTION = "Invalid Option.";
     public static final String NEW_LINE = "\n";
-    public static final String HYPENS_LINE = "---------------------------------------------------------------------------------------------------------";
+    public static final String HYPHENS_LINE = "---------------------------------------------------------------------------------------------------------";
 
-    public static void printResults(Map<String, Object> results) {
-        System.out.println();
-        for (Map.Entry<String, Object> entry : results.entrySet()) {
-            Object value = entry.getValue();
-            System.out.printf("%-16s %s%n", entry.getKey(), value);
-        }
-    }
-
-    public static void printResults(Data dataItem) {
+    public static void printResult(Data dataItem) {
         System.out.println();
         //Sort by keys
         Map<String, Object> result = dataItem.getFields().entrySet().stream()
                         .sorted(Map.Entry.comparingByKey())
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
         result.forEach((k, v) -> System.out.printf("%-16s %s%n", k, v));
-}
+    }
+
+    public static void printResult(Data dataItem, Set<String> configFields) {
+        if (configFields.isEmpty()) {
+            printResult(dataItem);
+            return;
+        }
+
+       //Sort by keys
+        dataItem.getFields().entrySet().stream().forEach(field -> {
+            if (configFields.contains(field.getKey())) {
+                System.out.printf("%-16s %s%n", field.getKey(), field.getValue());
+            }
+        });
+    }
 
     public static void printResults(List<Data> results) {
         if (results.isEmpty()) {
@@ -48,8 +56,35 @@ public final class PrintUtil {
         }
         results.removeIf(Objects::isNull);
         for (Data dataItem : results) {
-            printResults(dataItem);
+            printResult(dataItem);
         }
+    }
+    public static void printResults(List<Data> results, Set<String> configFields) {
+        if (results.isEmpty()) {
+            System.out.println("No results found");
+            return;
+        }
+        results.removeIf(Objects::isNull);
+        for (Data dataItem : results) {
+            printResult(dataItem, configFields);
+        }
+    }
+
+    public static void printGlobalSearchInformation() {
+        PrintUtil.printData("\nWelcome to Zendesk Search\n"
+                        + "Type 'quit' to exit at any time, Press 'Enter' to continue\n");
+    }
+
+    public static void printSearchInformation() {
+        PrintUtil.printData(PrintUtil.SEARCH_OPTIONS);
+    }
+
+    public static void printSearchTablesInformation() {
+        PrintUtil.printData(PrintUtil.SEARCH_TABLES_OPTIONS);
+    }
+
+    public static void print(String printString) {
+        System.out.print(printString);
     }
 
     public static void printData(String printString) {

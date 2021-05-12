@@ -1,0 +1,17 @@
+[
+  {
+    "Users": [
+      "_id",
+      "name",
+      "alias"
+    ],
+    "Tickets": [
+      "_id",
+      "subject"
+    ],
+    "Organization": [
+      "_id",
+      "name"
+    ]
+  }
+]

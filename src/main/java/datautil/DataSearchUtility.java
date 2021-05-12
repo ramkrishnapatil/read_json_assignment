@@ -23,16 +23,19 @@ public final class DataSearchUtility {
      *         search field and have a value that matches the search value
      */
     @SuppressWarnings("unchecked")
-    public static List<Data> search(Map<String, Data> data, String searchField, String searchValue) {
+    public static List<Data> searchDatastore(Map<String, Data> data, String searchField, String searchValue) {
         List<Data> results = new ArrayList<>();
 
         if (null == data) {
             return results;
         }
 
-        // If searching by key
-        if (searchField.equals(PrintUtil.ID_KEY) && data.containsKey(PrintUtil.ID_KEY)) {
-            results.add(data.get(searchValue));
+        // If searching by key and matches value
+        if (searchField.equals(PrintUtil.ID_KEY)) {
+            Data resultData = data.get(searchValue);
+            if (resultData != null) {
+                results.add(data.get(searchValue));
+            }
             return results;
         }
 
@@ -70,6 +73,38 @@ public final class DataSearchUtility {
 
         return results;
     }
+
+    /**
+     * Search the given list of data for items that have the given field and
+     * it's value matches (or contains in the case of lists) the given search value.
+     * @param dataItem Data to search
+     * @param searchField Field/key within the maps to match upon
+     * @param searchValue Value to look for in the search field
+     * @return List of data items that contain a field with a name of the
+     *         search field and have a value that matches the search value
+     */
+    public static Data matchData(Data dataItem, String searchField, String searchValue) {
+        Object fieldValue = dataItem.getFieldValue(searchField);
+
+        // Consider a null value as empty
+        if (null == fieldValue) {
+            fieldValue = "";
+        }
+
+        if (fieldValue instanceof List) {
+            // List/Arrays are assumed to only contain strings
+            if (((List<String>)fieldValue).contains(searchValue)) {
+                return dataItem;
+            }
+        }
+        else {
+            if (fieldValue.toString().equals(searchValue)) {
+                return dataItem;
+            }
+        }
+        return null;
+    }
+
 
     /**
      * Get a set of all the fields from the given data.

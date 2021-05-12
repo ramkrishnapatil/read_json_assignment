@@ -1,78 +1,42 @@
 package search;
 
+import static datautil.PrintUtil.HYPHENS_LINE;
+import static datautil.PrintUtil.INPUT_PROMPT;
+import static datautil.PrintUtil.QUIT_STRING;
+import static datautil.PrintUtil.SEARCH_FIELD_NAME;
+import static datautil.PrintUtil.SEARCH_FIELD_VALUE;
+
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
-import model.Data;
-import model.Organization;
-import model.Ticket;
-import model.User;
-import util.PrintUtil;
+import data.Data;
+import datastore.DataStore;
+import datastore.Organizations;
+import datautil.ConfigFieldsUtil;
+import datastore.Tickets;
+import datastore.Users;
+import datautil.PrintUtil;
 
 public class ZendeskSearchApp {
-    private static final String INPUT_PROMPT = "* ";
-    private static final String SEARCH_TABLES_OPTIONS = "\nSelect 1)Users or 2)Tickets or 3)Organizations";
-    private static final String SEARCH_FIELD_NAME = "Enter search term";
-    private static final String SEARCH_FIELD_VALUE = "Enter search value";
-    private static final String SEARCH_MENU_SPACE = "\t\t";
-    private static final String SEARCH_OPTIONS = SEARCH_MENU_SPACE + "Select search options\n"
-                    + SEARCH_MENU_SPACE + "* Press 1 to search Zendesk\n"
-                    + SEARCH_MENU_SPACE + "* Press 2 to view list of searchable fields\n"
-                    + SEARCH_MENU_SPACE + "* Type 'quit' to exit";
-
-    private final Data users;
-    private final Data tickets;
-    private final Data organizations;
+    private final Users users;
+    private final Tickets tickets;
+    private final Organizations organizations;
+    private final ConfigFieldsUtil configFieldsUtil;
 
     /**
-     * Default constructor. This will load the data into objects.
+     * Default constructor. This will load the data into java objects.
      */
     public ZendeskSearchApp() {
-        users = new User("users.json");
-        tickets = new Ticket("tickets.json");
-        organizations = new Organization("organizations.json");
+        users = new Users("users.json");
+        tickets = new Tickets("tickets.json");
+        organizations = new Organizations("organizations.json");
+        configFieldsUtil = new ConfigFieldsUtil("configfields.json");
     }
 
-    private static void printGlobalSearchInformation() {
-        System.out.println("Welcome to Zendesk Search\n"
-                        + "Type 'quit' to exit at any time, Press 'Enter' to continue\n\n\n");
-    }
-
-    private static void printSearchInformation() {
-        System.out.println(SEARCH_OPTIONS);
-    }
-
-    private static void printSearchTablesInformation() {
-        System.out.println(SEARCH_TABLES_OPTIONS);
-    }
-
-    public void searchData(Scanner scanner) {
-        String menuOption = "";
-        while (!"quit".equalsIgnoreCase(menuOption) && !"q".equalsIgnoreCase(menuOption)) {
-            printSearchTablesInformation();
-            System.out.print(INPUT_PROMPT);
-            menuOption = scanner.nextLine().trim();
-
-            switch (menuOption) {
-            case "1":
-            case "2":
-            case "3":
-                search(menuOption, scanner);
-                break;
-            default:
-                System.out.println();
-                System.out.println("Invalid option");
-                break;
-            }
-        }
-        System.exit(0);
-    }
-
-    private void search(String menuOption, Scanner scanner) {
-        Data data;
+    public void searchData(String menuOption, Scanner scanner) {
+        DataStore data;
         switch (menuOption) {
         case "1":
             data = users;
@@ -81,102 +45,120 @@ public class ZendeskSearchApp {
             data = tickets;
             break;
         case "3":
-        default:
             data = organizations;
             break;
+        default:
+            PrintUtil.printData(PrintUtil.INVALID_OPTION);
+            return;
         }
 
         if (!data.hasData()) {
-            System.out.println();
-            System.out.println("Nothing to search!");
+            PrintUtil.print(PrintUtil.NEW_LINE);
+            PrintUtil.printData("Nothing to search!");
             return;
         }
 
         String searchField = promptForSearchableField(data, scanner);
         String searchValue = promptForSearchValue(scanner);
-        List<Map<String, Object>> results = data.search(searchField, searchValue);
+        List<Data> results = data.search(searchField, searchValue);
 
-        PrintUtil.printResults(results);
+        searchFromRelatedDatastore(menuOption, results);
+    }
 
+    /**
+     * This function will search the relation
+     * @param menuOption Selected menu option
+     * @param results Results searched
+     */
+    private void searchFromRelatedDatastore(String menuOption, List<Data> results) {
+        if (results.isEmpty()) {
+            PrintUtil.printResults(results);
+            return;
+        }
+        //If the organization_id and tickets/users id are same then we will need two sets
         Set<String> idValues = new HashSet<>();
         switch (menuOption) {
         case "1":
-            results.forEach(result -> idValues.add(result.get("organization_id").toString()));
-//            tickets.searchIdAndPrintRecord(idValues);
-            organizations.searchIdAndPrintRecord(idValues);
-            break;
         case "2":
-            // Do not know the relation of tickets
-            results.forEach( result -> System.out.println(result.get("organization_id").toString()));
-//            users.searchIdAndPrintRecord(idValues);
-            organizations.searchIdAndPrintRecord(idValues);
+            // Currently do not know the relation of users and tickets so not implemented
+            // Otherwise it case 2 will be separate.
+            results.forEach(result -> {
+                PrintUtil.printResult(result);
+                if (result.getFields().containsKey(PrintUtil.ORGANIZATION_ID)) {
+                    String orgId = result.getFieldValue(PrintUtil.ORGANIZATION_ID).toString();
+                    PrintUtil.printResult(organizations.searchDataStoreById(orgId), configFieldsUtil.getConfigFields(organizations.getDataName()));
+                }
+            });
             break;
         case "3":
+            results.forEach(result -> {
+                PrintUtil.printResult(result);
+                if (result.getId() != null && !result.getId().isEmpty()) {
+                    PrintUtil.printData("Printing " + users.getDataName() + " for id : " + result.getId());
+                    PrintUtil.printResults(users.searchDataStoreByField(PrintUtil.ORGANIZATION_ID, result.getId()), configFieldsUtil.getConfigFields(users.getDataName()));
+                    PrintUtil.printData("Printing " + tickets.getDataName() + " for id : " + result.getId());
+                    PrintUtil.printResults(tickets.searchDataStoreByField(PrintUtil.ORGANIZATION_ID, result.getId()), configFieldsUtil.getConfigFields(tickets.getDataName()));
+                }
+            });
+            break;
         default:
-//            users.searchIdAndPrintRecord(searchField, searchValue);
-//            tickets.searchIdAndPrintRecord(searchField, searchValue);
             break;
         }
-
     }
 
-    private static String promptForSearchableField(Data data, Scanner scanner) {
+    /**
+     * Get the search field name from user.
+     * @param data Datastore to search the field
+     * @param scanner System input
+     * @return String Valid Search field name
+     */
+    private String promptForSearchableField(DataStore data, Scanner scanner) {
         String searchableField;
 
         boolean validField;
         do {
-            System.out.println();
-            System.out.println(SEARCH_FIELD_NAME);
-            System.out.print(INPUT_PROMPT);
+            PrintUtil.printData(SEARCH_FIELD_NAME);
+            PrintUtil.print(INPUT_PROMPT);
             searchableField = scanner.nextLine().trim();
+            if (QUIT_STRING.equalsIgnoreCase(searchableField)) {
+                exitApplication();
+            }
 
             validField = data.isSearchableField(searchableField);
             if (!validField) {
-                System.out.println("Invalid field, try again. Valid fields are");
+                PrintUtil.printData("Invalid field, try again. Valid fields are : ");
                 data.printSearchableFields();
+                PrintUtil.printData(HYPHENS_LINE);
             }
         } while (!validField);
 
         return searchableField;
     }
 
-    private static String promptForSearchValue(Scanner scanner) {
-        System.out.println();
-        System.out.println(SEARCH_FIELD_VALUE);
-        System.out.print(INPUT_PROMPT);
-        return scanner.nextLine().trim();
+    /**
+     * Prompt for search value
+     * @param scanner
+     * @return search field value
+     */
+    private String promptForSearchValue(Scanner scanner) {
+        PrintUtil.printData(SEARCH_FIELD_VALUE);
+        PrintUtil.print(INPUT_PROMPT);
+        String searchValue = scanner.nextLine().trim();
+        if (QUIT_STRING.equalsIgnoreCase(searchValue)) {
+            exitApplication();
+        }
+        return searchValue;
     }
 
-    /**
-     * Application execution begins here.
-     */
-    public void run() {
-        System.out.println();
-        printGlobalSearchInformation();
-
-        try (Scanner scanner = new Scanner(System.in)) {
-            String menuOption = "";
-            while (!"quit".equalsIgnoreCase(menuOption)) {
-                printSearchInformation();
-                System.out.print(INPUT_PROMPT);
-                menuOption = scanner.nextLine().trim();
-
-                switch (menuOption) {
-                case "1":
-                    searchData(scanner);
-                    break;
-                case "2":
-                    users.printSearchableFields();
-                    tickets.printSearchableFields();
-                    organizations.printSearchableFields();
-                    break;
-                default:
-                    System.out.println();
-                    System.out.println("Invalid option");
-                    break;
-                }
-            }
-        }
+    public void exitApplication() {
         System.exit(0);
     }
+
+    public void printSearchableFields() {
+        users.printSearchableFields();
+        tickets.printSearchableFields();
+        organizations.printSearchableFields();
+        PrintUtil.printData(HYPHENS_LINE);
+    }
+
 }
