@@ -11,27 +11,27 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
-import data.Data;
+import datastore.Data;
 import datastore.DataStore;
-import datastore.Organizations;
+import datastore.Organization;
 import datautil.ConfigFieldsUtil;
-import datastore.Tickets;
-import datastore.Users;
+import datastore.Ticket;
+import datastore.User;
 import datautil.PrintUtil;
 
 public class ZendeskSearchApp {
-    private final Users users;
-    private final Tickets tickets;
-    private final Organizations organizations;
+    private final User user;
+    private final Ticket ticket;
+    private final Organization organization;
     private final ConfigFieldsUtil configFieldsUtil;
 
     /**
      * Default constructor. This will load the data into java objects.
      */
     public ZendeskSearchApp() {
-        users = new Users("users.json");
-        tickets = new Tickets("tickets.json");
-        organizations = new Organizations("organizations.json");
+        user = new User("users.json");
+        ticket = new Ticket("tickets.json");
+        organization = new Organization("organizations.json");
         configFieldsUtil = new ConfigFieldsUtil("configfields.json");
     }
 
@@ -39,13 +39,13 @@ public class ZendeskSearchApp {
         DataStore data;
         switch (menuOption) {
         case "1":
-            data = users;
+            data = user;
             break;
         case "2":
-            data = tickets;
+            data = ticket;
             break;
         case "3":
-            data = organizations;
+            data = organization;
             break;
         default:
             PrintUtil.printData(PrintUtil.INVALID_OPTION);
@@ -86,7 +86,7 @@ public class ZendeskSearchApp {
                 PrintUtil.printResult(result);
                 if (result.getFields().containsKey(PrintUtil.ORGANIZATION_ID)) {
                     String orgId = result.getFieldValue(PrintUtil.ORGANIZATION_ID).toString();
-                    PrintUtil.printResult(organizations.searchDataStoreById(orgId), configFieldsUtil.getConfigFields(organizations.getDataName()));
+                    PrintUtil.printResult(organization.searchDataStoreById(orgId), configFieldsUtil.getConfigFields(organization.getDataName()));
                 }
             });
             break;
@@ -94,10 +94,10 @@ public class ZendeskSearchApp {
             results.forEach(result -> {
                 PrintUtil.printResult(result);
                 if (result.getId() != null && !result.getId().isEmpty()) {
-                    PrintUtil.printData("Printing " + users.getDataName() + " for id : " + result.getId());
-                    PrintUtil.printResults(users.searchDataStoreByField(PrintUtil.ORGANIZATION_ID, result.getId()), configFieldsUtil.getConfigFields(users.getDataName()));
-                    PrintUtil.printData("Printing " + tickets.getDataName() + " for id : " + result.getId());
-                    PrintUtil.printResults(tickets.searchDataStoreByField(PrintUtil.ORGANIZATION_ID, result.getId()), configFieldsUtil.getConfigFields(tickets.getDataName()));
+                    PrintUtil.printData("Printing " + user.getDataName() + " for id : " + result.getId());
+                    PrintUtil.printResults(user.searchDataStoreByField(PrintUtil.ORGANIZATION_ID, result.getId()), configFieldsUtil.getConfigFields(user.getDataName()));
+                    PrintUtil.printData("Printing " + ticket.getDataName() + " for id : " + result.getId());
+                    PrintUtil.printResults(ticket.searchDataStoreByField(PrintUtil.ORGANIZATION_ID, result.getId()), configFieldsUtil.getConfigFields(ticket.getDataName()));
                 }
             });
             break;
@@ -155,9 +155,9 @@ public class ZendeskSearchApp {
     }
 
     public void printSearchableFields() {
-        users.printSearchableFields();
-        tickets.printSearchableFields();
-        organizations.printSearchableFields();
+        user.printSearchableFields();
+        ticket.printSearchableFields();
+        organization.printSearchableFields();
         PrintUtil.printData(HYPHENS_LINE);
     }
 

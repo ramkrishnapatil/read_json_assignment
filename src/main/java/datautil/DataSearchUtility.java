@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import data.Data;
+import datastore.Data;
 
 /**
  * Search Utility functions.

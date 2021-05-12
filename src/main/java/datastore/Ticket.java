@@ -1,15 +1,15 @@
 package datastore;
 
-public class Users extends DataStore {
+public class Ticket extends DataStore {
 
-    private static final String ENTITY_NAME = "Users";
+    private static final String ENTITY_NAME = "Tickets";
 
     /**
      * Construct data from json file
      *
      * @param fileName Name of a file in the resources directory
      */
-    public Users(String fileName) {
+    public Ticket(String fileName) {
         super(fileName);
     }
 

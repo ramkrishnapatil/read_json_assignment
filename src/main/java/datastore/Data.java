@@ -1,4 +1,4 @@
-package data;
+package datastore;
 
 import java.util.HashMap;
 import java.util.Map;

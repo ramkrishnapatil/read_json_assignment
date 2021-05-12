@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import data.Data;
+import datastore.Data;
 
 public final class PrintUtil {
     public static final String INPUT_PROMPT = "* ";
