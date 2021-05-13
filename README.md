@@ -26,6 +26,7 @@ user has been asked to provide the correct field name
 
 
 ###Class information:
+
 Data:
 * The entity class which will contain one record and stored in Map
 
