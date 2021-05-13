@@ -1,10 +1,10 @@
-# read_json_assignment
-Zendesk Search (Command Line Application)
+#Zendesk Search (Command Line Application)
+
 Run the program using gradlew as below from command line:
 Use the branch **develop**
 * ./gradlew run --console=plain
 
-Libraries and Tools used
+###Libraries and Tools used
 * Using java 1.8+ 
 * Gradle
 * Jackson JSON Processor(1.12+)
@@ -13,20 +13,19 @@ Libraries and Tools used
 * Chosen Jackson library over Gson because if the number of records increase then Jackson performs better
 * PlantUML is used for basic class/sequence diagram(package_info.java)
 
-Assumption:
+###Assumptions:
 * Don't know the relation between ticket and users so not searched the related entity
 * _id will exist for all the records. If _id does not exist the application will just ignore the record
 * If the field is list e.g. tags then List contains is used rather than exact match
 
-Improvements:
+###Additional Work:
 * While searching, if user provides wrong field name then searchable fields are displayed and 
 user has been asked to provide the correct field name
 * Implementation of ConfigFieldsUtil.
   This gives the flexibility to configure the fields to be displayed from related datastore
 
 
-Class information:
-
+###Class information:
 Data:
 * The entity class which will contain one record and stored in Map
 
@@ -64,7 +63,7 @@ ZendeskSearchMenu:
 ZendeskSearchApp:
 * According to user option searches the Datastore and prints the results
 
-Improvement:
+###Further Improvements:
 * Improve the JUnit tests
 * Implement LRU cache to improve the search performance
 * Provide data print order option to user e.g. Ascending/Descending
