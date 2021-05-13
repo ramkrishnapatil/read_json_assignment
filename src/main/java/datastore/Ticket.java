@@ -1,5 +1,8 @@
 package datastore;
 
+/**
+ * This will contain all the Ticket records.
+ */
 public class Ticket extends DataStore {
 
     private static final String ENTITY_NAME = "Tickets";

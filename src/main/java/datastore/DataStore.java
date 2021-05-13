@@ -1,6 +1,8 @@
 package datastore;
 
-import java.util.ArrayList;
+import java.io.File;
+
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,9 +12,12 @@ import datautil.DataSearchUtility;
 import datautil.PrintUtil;
 import datautil.ResourceLoader;
 
+/**
+ * This abstract class is used to hold all the records from the file.
+ * The records are stored using the "_id" so that if searched by "_id", search will be faster.
+ */
 public abstract class DataStore {
 
-    private static final String FIELD_INDENT = " ";
     private final Set<String> fields;
     private final Map<String, Data> idToDataMap;
 
@@ -21,7 +26,9 @@ public abstract class DataStore {
      * @param fileName Name of a file
      */
     protected DataStore(String fileName) {
-        List<Map<String, Object>> dataList = ResourceLoader.loadFromJsonResource(fileName);
+        ClassLoader classLoader = getClass().getClassLoader();
+        File file = new File(classLoader.getResource(fileName).getFile());
+        List<Map<String, Object>> dataList = ResourceLoader.loadFromJsonResource(file.toString());
         this.fields = DataSearchUtility.searchableFields(dataList);
             idToDataMap = new HashMap<>();
             dataList.forEach(dataRecord -> {
@@ -42,7 +49,11 @@ public abstract class DataStore {
      * @return all the searchable fields
      */
     public Set<String> getFields() {
-        return this.fields;
+        return Collections.unmodifiableSet(fields);
+    }
+
+    public Map<String, Data> getDataMap() {
+        return Collections.unmodifiableMap(idToDataMap);
     }
 
     /**
@@ -72,21 +83,21 @@ public abstract class DataStore {
      *         search field and matches the search value
      */
     public List<Data> search(String searchField, String searchValue) {
-        PrintUtil.printData("Searching " + getDataName() + " for " + searchField + " with a value of " + searchValue);
-        return DataSearchUtility.searchDatastore(idToDataMap, searchField, searchValue);
+        PrintUtil.printData("\nSearching " + getDataName() + " for " + searchField + " with a value of " + searchValue);
+        return DataSearchUtility.searchDatastore(getDataMap(), searchField, searchValue);
     }
 
+    /**
+     * Gives the current datastore name, used to print.
+     * @return String datastore name
+     */
     public abstract String getDataName();
 
-    public void printSearchableFields() {
-        PrintUtil.printData("---------------------------------------------------------------------------------------------------------");
-        PrintUtil.printData("Search " + getDataName() + " with");
-        for (String field : getFields()) {
-            PrintUtil.print(" |" + FIELD_INDENT + field);
-        }
-        PrintUtil.print(PrintUtil.NEW_LINE);
-    }
-
+    /**
+     * The datastore search method by Id.
+     * @param searchValue Searching value
+     * @return matched data otherwise null.
+     */
     public Data searchDataStoreById(String searchValue) {
         if (isSearchableField(PrintUtil.ID_KEY)) {
             Data dataRecord = idToDataMap.get(searchValue);
@@ -96,23 +107,6 @@ public abstract class DataStore {
             }
         }
         return null;
-    }
-
-    public List<Data> searchDataStoreByField(String searchField, String searchValue) {
-        List<Data> results = new ArrayList<>();
-
-        // searching by id
-        if (PrintUtil.ID_KEY.equals(searchField)) {
-            results.add(searchDataStoreById(searchValue));
-        }
-        else {
-            idToDataMap.forEach((s, data) -> {
-                if (data.getFields().containsKey(searchField) && searchValue.contains(data.getFieldValue(searchField).toString())) {
-                    results.add(data);
-                }
-            });
-        }
-        return results;
     }
 
 }

@@ -9,8 +9,15 @@ import java.util.stream.Collectors;
 
 import datastore.Data;
 
+/**
+ * The class is used to print the data.
+ * This is wrapper to System.print. It will make easy to direct the output in future if application
+ * decides to use any library.
+ */
 public final class PrintUtil {
+
     public static final String INPUT_PROMPT = "* ";
+    private static final String FIELD_INDENT = " ";
     public static final String SEARCH_TABLES_OPTIONS = "\nSelect 1)Users or 2)Tickets or 3)Organizations or 4)Back to Main menu";
     public static final String SEARCH_FIELD_NAME = "\nEnter search term";
     public static final String SEARCH_FIELD_VALUE = "\nEnter search value";
@@ -26,17 +33,47 @@ public final class PrintUtil {
     public static final String NEW_LINE = "\n";
     public static final String HYPHENS_LINE = "---------------------------------------------------------------------------------------------------------";
 
+    public static void printGlobalSearchInformation() {
+        printData("\nWelcome to Zendesk Search\n"
+                        + "Type 'quit' to exit at any time, Press 'Enter' to continue\n");
+    }
+
+    public static void printSearchInformation() {
+        printData(PrintUtil.SEARCH_OPTIONS);
+    }
+
+    public static void printSearchTablesInformation() {
+        printData(PrintUtil.SEARCH_TABLES_OPTIONS);
+    }
+
+    public static void print(String printString) {
+        System.out.print(printString);
+    }
+
+    public static void printData(String printString) {
+        System.out.println(printString);
+    }
+
+    public static void printFields(String dataName, Set<String> fields) {
+        printData("---------------------------------------------------------------------------------------------------------");
+        printData("Search " + dataName + " with");
+        for (String field : fields) {
+            print(" |" + FIELD_INDENT + field);
+        }
+        print(PrintUtil.NEW_LINE);
+    }
+
     public static void printResult(Data dataItem) {
-        System.out.println();
-        //Sort by keys
-        Map<String, Object> result = dataItem.getFields().entrySet().stream()
-                        .sorted(Map.Entry.comparingByKey())
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
-        result.forEach((k, v) -> System.out.printf("%-16s %s%n", k, v));
+        if (dataItem != null) {
+            printData(NEW_LINE);
+            //Sort by keys
+            Map<String, Object> result = dataItem.getFields().entrySet().stream().sorted(Map.Entry.comparingByKey()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+            result.forEach((k, v) -> System.out.printf("%-16s %s%n", k, v));
+        }
     }
 
     public static void printResult(Data dataItem, Set<String> configFields) {
-        if (configFields.isEmpty()) {
+        if (configFields == null || configFields.isEmpty() || dataItem == null) {
             printResult(dataItem);
             return;
         }
@@ -51,7 +88,7 @@ public final class PrintUtil {
 
     public static void printResults(List<Data> results) {
         if (results.isEmpty()) {
-            System.out.println("No results found");
+            printData("No results found");
             return;
         }
         results.removeIf(Objects::isNull);
@@ -59,9 +96,10 @@ public final class PrintUtil {
             printResult(dataItem);
         }
     }
+
     public static void printResults(List<Data> results, Set<String> configFields) {
         if (results.isEmpty()) {
-            System.out.println("No results found");
+            printData("No results found");
             return;
         }
         results.removeIf(Objects::isNull);
@@ -70,24 +108,4 @@ public final class PrintUtil {
         }
     }
 
-    public static void printGlobalSearchInformation() {
-        PrintUtil.printData("\nWelcome to Zendesk Search\n"
-                        + "Type 'quit' to exit at any time, Press 'Enter' to continue\n");
-    }
-
-    public static void printSearchInformation() {
-        PrintUtil.printData(PrintUtil.SEARCH_OPTIONS);
-    }
-
-    public static void printSearchTablesInformation() {
-        PrintUtil.printData(PrintUtil.SEARCH_TABLES_OPTIONS);
-    }
-
-    public static void print(String printString) {
-        System.out.print(printString);
-    }
-
-    public static void printData(String printString) {
-        System.out.println(printString);
-    }
 }

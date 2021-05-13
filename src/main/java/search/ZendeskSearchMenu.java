@@ -8,6 +8,9 @@ import java.util.Scanner;
 
 import datautil.PrintUtil;
 
+/**
+ * This class takes the input from the user and search/display data if exists
+ */
 public class ZendeskSearchMenu {
 
     private ZendeskSearchApp searchApp;
@@ -32,7 +35,6 @@ public class ZendeskSearchMenu {
             case "4":
                 return;
             default:
-                PrintUtil.printData(PrintUtil.INVALID_OPTION);
                 break;
             }
         }

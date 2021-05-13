@@ -6,19 +6,21 @@ import static datautil.PrintUtil.QUIT_STRING;
 import static datautil.PrintUtil.SEARCH_FIELD_NAME;
 import static datautil.PrintUtil.SEARCH_FIELD_VALUE;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
-import java.util.Set;
 
 import datastore.Data;
 import datastore.DataStore;
 import datastore.Organization;
-import datautil.ConfigFieldsUtil;
 import datastore.Ticket;
 import datastore.User;
+import datautil.ConfigFieldsUtil;
 import datautil.PrintUtil;
 
+/**
+ * This class creates Users/Tickets/Organizations from the  json files.
+ * This classes are used to search/display data.
+ */
 public class ZendeskSearchApp {
     private final User user;
     private final Ticket ticket;
@@ -35,6 +37,11 @@ public class ZendeskSearchApp {
         configFieldsUtil = new ConfigFieldsUtil("configfields.json");
     }
 
+    /**
+     * Search the data
+     * @param menuOption user menu option
+     * @param scanner Scanner for user input
+     */
     public void searchData(String menuOption, Scanner scanner) {
         DataStore data;
         switch (menuOption) {
@@ -66,7 +73,7 @@ public class ZendeskSearchApp {
     }
 
     /**
-     * This function will search the relation
+     * This function will search the related data from different datastore
      * @param menuOption Selected menu option
      * @param results Results searched
      */
@@ -76,7 +83,6 @@ public class ZendeskSearchApp {
             return;
         }
         //If the organization_id and tickets/users id are same then we will need two sets
-        Set<String> idValues = new HashSet<>();
         switch (menuOption) {
         case "1":
         case "2":
@@ -94,10 +100,8 @@ public class ZendeskSearchApp {
             results.forEach(result -> {
                 PrintUtil.printResult(result);
                 if (result.getId() != null && !result.getId().isEmpty()) {
-                    PrintUtil.printData("Printing " + user.getDataName() + " for id : " + result.getId());
-                    PrintUtil.printResults(user.searchDataStoreByField(PrintUtil.ORGANIZATION_ID, result.getId()), configFieldsUtil.getConfigFields(user.getDataName()));
-                    PrintUtil.printData("Printing " + ticket.getDataName() + " for id : " + result.getId());
-                    PrintUtil.printResults(ticket.searchDataStoreByField(PrintUtil.ORGANIZATION_ID, result.getId()), configFieldsUtil.getConfigFields(ticket.getDataName()));
+                    PrintUtil.printResults(user.search(PrintUtil.ORGANIZATION_ID, result.getId()), configFieldsUtil.getConfigFields(user.getDataName()));
+                    PrintUtil.printResults(ticket.search(PrintUtil.ORGANIZATION_ID, result.getId()), configFieldsUtil.getConfigFields(ticket.getDataName()));
                 }
             });
             break;
@@ -127,7 +131,7 @@ public class ZendeskSearchApp {
             validField = data.isSearchableField(searchableField);
             if (!validField) {
                 PrintUtil.printData("Invalid field, try again. Valid fields are : ");
-                data.printSearchableFields();
+                PrintUtil.printFields(data.getDataName(), data.getFields());
                 PrintUtil.printData(HYPHENS_LINE);
             }
         } while (!validField);
@@ -150,14 +154,20 @@ public class ZendeskSearchApp {
         return searchValue;
     }
 
+    /**
+     * Exit the search.
+     */
     public void exitApplication() {
         System.exit(0);
     }
 
+    /**
+     * Print the searchable fields for User/Ticket/Organization
+     */
     public void printSearchableFields() {
-        user.printSearchableFields();
-        ticket.printSearchableFields();
-        organization.printSearchableFields();
+        PrintUtil.printFields(user.getDataName(), user.getFields());
+        PrintUtil.printFields(ticket.getDataName(), ticket.getFields());
+        PrintUtil.printFields(organization.getDataName(), organization.getFields());
         PrintUtil.printData(HYPHENS_LINE);
     }
 

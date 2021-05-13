@@ -1,8 +1,11 @@
 package datastore;
 
+/**
+ * This will contain all the Organization records.
+ */
 public class Organization extends DataStore {
 
-    private static final String ENTITY_NAME = "Organization";
+    private static final String ENTITY_NAME = "Organizations";
 
     /**
      * Construct data from json file
@@ -17,4 +20,5 @@ public class Organization extends DataStore {
     public String getDataName() {
         return ENTITY_NAME;
     }
+
 }

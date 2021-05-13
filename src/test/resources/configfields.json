@@ -8,10 +8,6 @@
     "Tickets": [
       "_id",
       "subject"
-    ],
-    "Organizations": [
-      "_id",
-      "name"
     ]
   }
 ]

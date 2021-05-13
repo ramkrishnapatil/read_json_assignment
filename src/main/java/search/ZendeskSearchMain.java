@@ -1,5 +1,8 @@
 package search;
 
+/**
+ * Main class to run the application
+ */
 public class ZendeskSearchMain {
     /**
      * Application execution starts here

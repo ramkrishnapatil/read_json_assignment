@@ -13,11 +13,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * Load the json resource into data.
+ * Load the json resources into Datastore.
  */
 public final class ResourceLoader {
-
-    private static final String RESOURCE_PATH = "src/main/resources/";
 
     private ResourceLoader() {
         // instantiation not required
@@ -34,16 +32,18 @@ public final class ResourceLoader {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
-            File usersFile = Paths.get(RESOURCE_PATH + jsonFile).toFile();
+            File usersFile = Paths.get(jsonFile).toFile();
             data = mapper.readValue(usersFile, ArrayList.class);
         } catch (NullPointerException npe) {
-            System.err.println("Unable to open jsonFile: " + jsonFile + " : " + npe.getMessage());
+            PrintUtil.printData("Unable to open jsonFile: " + jsonFile + " : " + npe.getMessage());
         } catch (JsonParseException jse) {
-            System.err.println("Invalid data in jsonFile: " + jsonFile + " : "  + jse.getMessage());
+            PrintUtil.printData("Invalid data in jsonFile: " + jsonFile + " : "  + jse.getMessage());
         } catch (JsonMappingException jme) {
-            System.err.println("Error while loading jsonFile: " + jsonFile + " : "  + jme.getMessage());
+            PrintUtil.printData("Error while loading jsonFile: " + jsonFile + " : "  + jme.getMessage());
         } catch (IOException ioe) {
-            System.err.println("Error while loading jsonFile: " + jsonFile + " : "  + ioe.getMessage());
+            PrintUtil.printData("Error while loading jsonFile: " + jsonFile + " : "  + ioe.getMessage());
+        } catch (Exception exc) {
+            PrintUtil.printData("Exception in loading jsonFile: " + jsonFile + " : "  + exc.getMessage());
         }
 
         return data;

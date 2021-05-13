@@ -1,13 +1,17 @@
 package datastore;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import datautil.PrintUtil;
 
+/**
+ * The class represents the User/Organization/Ticket entity.
+ */
 public class Data {
 
-    private Map<String, Object> fields;
+    private final Map<String, Object> fields;
 
     public Data(Map<String, Object> fieldsMap) {
         fields = new HashMap<>();
@@ -19,7 +23,7 @@ public class Data {
     }
 
     public Map<String, Object> getFields() {
-        return fields;
+        return Collections.unmodifiableMap(fields);
     }
 
     public Object getFieldValue(String fieldName) {

@@ -9,9 +9,13 @@ import java.util.TreeSet;
 import datastore.Data;
 
 /**
- * Search Utility functions.
+ * The Search Utility class provides the search .
  */
 public final class DataSearchUtility {
+
+    private DataSearchUtility() {
+        //Prevent
+    }
 
     /**
      * Search the given list of data for items that have the given field and
@@ -19,8 +23,7 @@ public final class DataSearchUtility {
      * @param data List of data to search, the keys correspond to the search field
      * @param searchField Field/key within the maps to match upon
      * @param searchValue Value to look for in the search field
-     * @return List of data items that contain a field with a name of the
-     *         search field and have a value that matches the search value
+     * @return List of matched data items
      */
     @SuppressWarnings("unchecked")
     public static List<Data> searchDatastore(Map<String, Data> data, String searchField, String searchValue) {
@@ -41,33 +44,8 @@ public final class DataSearchUtility {
 
         for (Map.Entry<String, Data> records : data.entrySet()) {
             Data dataItem = records.getValue();
-            Object fieldValue = dataItem.getFieldValue(searchField);
-
-            // Consider a null value as empty
-            if (null == fieldValue) {
-                fieldValue = "";
-            }
-
-            if (fieldValue instanceof Double) {
-                try {
-                    if (fieldValue.equals(Double.valueOf(searchValue))) {
-                        results.add(dataItem);
-                    }
-                }
-                catch (NumberFormatException nfe) {
-                    // Continue
-                }
-            }
-            else if (fieldValue instanceof List) {
-                // List/Arrays are assumed to only contain strings
-                if (((List<String>)fieldValue).contains(searchValue)) {
-                    results.add(dataItem);
-                }
-            }
-            else {
-                if (fieldValue.toString().equals(searchValue)) {
-                    results.add(dataItem);
-                }
+            if (matchData(dataItem, searchField, searchValue) != null) {
+                results.add(dataItem);
             }
         }
 
@@ -75,13 +53,12 @@ public final class DataSearchUtility {
     }
 
     /**
-     * Search the given list of data for items that have the given field and
-     * it's value matches (or contains in the case of lists) the given search value.
+     * Search the given data for items that have the given field and it's value matches
+     * (or contains in the case of lists) the given search value.
      * @param dataItem Data to search
      * @param searchField Field/key within the maps to match upon
      * @param searchValue Value to look for in the search field
-     * @return List of data items that contain a field with a name of the
-     *         search field and have a value that matches the search value
+     * @return Data matched data item
      */
     public static Data matchData(Data dataItem, String searchField, String searchValue) {
         Object fieldValue = dataItem.getFieldValue(searchField);
@@ -91,7 +68,19 @@ public final class DataSearchUtility {
             fieldValue = "";
         }
 
-        if (fieldValue instanceof List) {
+        if (fieldValue instanceof Double) {
+            try {
+                double val = Double.parseDouble(searchValue);
+                if (((Double)fieldValue).compareTo(val) == 0) {
+                    return dataItem;
+                }
+            }
+            catch (NumberFormatException nfe) {
+                PrintUtil.printData("For field " + searchField + " with value " + fieldValue + ", datatype double expected. Provided : " + searchValue);
+                // Continue
+            }
+        }
+        else if (fieldValue instanceof List) {
             // List/Arrays are assumed to only contain strings
             if (((List<String>)fieldValue).contains(searchValue)) {
                 return dataItem;
@@ -102,23 +91,23 @@ public final class DataSearchUtility {
                 return dataItem;
             }
         }
+
         return null;
     }
 
-
     /**
      * Get a set of all the fields from the given data.
-     * @param dataModel List of data items that have searchable fields/keys
+     * @param datastore List of data items that have searchable fields/keys
      * @return a set of all the possible searchable fields in the data
      */
-    public static Set<String> searchableFields(List<Map<String, Object>> dataModel) {
+    public static Set<String> searchableFields(List<Map<String, Object>> datastore) {
         Set<String> searchableFields = new TreeSet<>();
 
-        if (null == dataModel) {
+        if (null == datastore) {
             return searchableFields;
         }
 
-        for (Map<String, Object> data : dataModel) {
+        for (Map<String, Object> data : datastore) {
             searchableFields.addAll(data.keySet());
         }
         return searchableFields;
