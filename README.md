@@ -4,6 +4,9 @@ Run the program using gradlew as below from command line:
 Use the branch **develop**
 * ./gradlew run --console=plain
 
+To run the tests
+* ./gradlew test
+
 ###Libraries and Tools used
 * Using java 1.8+ 
 * Gradle
