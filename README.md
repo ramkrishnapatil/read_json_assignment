@@ -4,18 +4,21 @@ Run the program using gradlew as below from command line:
 Use the branch **develop**
 * ./gradlew run --console=plain
 
+To run the tests
+* ./gradlew test
+
 ###Libraries and Tools used
 * Using java 1.8+ 
 * Gradle
 * Jackson JSON Processor(1.12+)
 * JUnit 4
 * Used Intellij IDE for development
-* Chosen Jackson library over Gson because if the number of records increase then Jackson performs better
+* Chosen Jackson library over Gson. Because when the number of records increase then Jackson performs better
 * PlantUML is used for basic class/sequence diagram(package_info.java)
 
 ###Assumptions:
-* Don't know the relation between ticket and users so not searched the related entity
-* _id will exist for all the records. If _id does not exist the application will just ignore the record
+* As the relation between ticket and users is unclear, not searched the related entity
+* _id will exist for all the records. If _id does not exist the application will ignore that record
 * If the field is list e.g. tags then List contains is used rather than exact match
 
 ###Additional Work:
@@ -26,6 +29,7 @@ user has been asked to provide the correct field name
 
 
 ###Class information:
+
 Data:
 * The entity class which will contain one record and stored in Map
 
