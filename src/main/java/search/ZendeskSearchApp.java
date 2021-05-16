@@ -6,15 +6,10 @@ import static datautil.PrintUtil.QUIT_STRING;
 import static datautil.PrintUtil.SEARCH_FIELD_NAME;
 import static datautil.PrintUtil.SEARCH_FIELD_VALUE;
 
-import java.util.List;
 import java.util.Scanner;
 
-import datastore.Data;
 import datastore.DataStore;
-import datastore.Organization;
-import datastore.Ticket;
-import datastore.User;
-import datautil.ConfigFieldsUtil;
+import datastore.DatastoreManager;
 import datautil.PrintUtil;
 
 /**
@@ -22,19 +17,19 @@ import datautil.PrintUtil;
  * This classes are used to search/display data.
  */
 public class ZendeskSearchApp {
-    private final User user;
-    private final Ticket ticket;
-    private final Organization organization;
-    private final ConfigFieldsUtil configFieldsUtil;
+    private final DataStore user;
+    private final DataStore ticket;
+    private final DataStore organization;
+    private final DatastoreManager datastoreManager;
 
     /**
      * Default constructor. This will load the data into java objects.
      */
     public ZendeskSearchApp() {
-        user = new User("users.json");
-        ticket = new Ticket("tickets.json");
-        organization = new Organization("organizations.json");
-        configFieldsUtil = new ConfigFieldsUtil("configfields.json");
+        datastoreManager = new DatastoreManager();
+        user = datastoreManager.getUser();
+        ticket = datastoreManager.getTicket();
+        organization = datastoreManager.getOrganization();
     }
 
     /**
@@ -67,47 +62,7 @@ public class ZendeskSearchApp {
 
         String searchField = promptForSearchableField(data, scanner);
         String searchValue = promptForSearchValue(scanner);
-        List<Data> results = data.search(searchField, searchValue);
-
-        searchFromRelatedDatastore(menuOption, results);
-    }
-
-    /**
-     * This function will search the related data from different datastore
-     * @param menuOption Selected menu option
-     * @param results Results searched
-     */
-    private void searchFromRelatedDatastore(String menuOption, List<Data> results) {
-        if (results.isEmpty()) {
-            PrintUtil.printResults(results);
-            return;
-        }
-        //If the organization_id and tickets/users id are same then we will need two sets
-        switch (menuOption) {
-        case "1":
-        case "2":
-            // Currently do not know the relation of users and tickets so not implemented
-            // Otherwise it case 2 will be separate.
-            results.forEach(result -> {
-                PrintUtil.printResult(result);
-                if (result.getFields().containsKey(PrintUtil.ORGANIZATION_ID)) {
-                    String orgId = result.getFieldValue(PrintUtil.ORGANIZATION_ID).toString();
-                    PrintUtil.printResult(organization.searchDataStoreById(orgId), configFieldsUtil.getConfigFields(organization.getDataName()));
-                }
-            });
-            break;
-        case "3":
-            results.forEach(result -> {
-                PrintUtil.printResult(result);
-                if (result.getId() != null && !result.getId().isEmpty()) {
-                    PrintUtil.printResults(user.search(PrintUtil.ORGANIZATION_ID, result.getId()), configFieldsUtil.getConfigFields(user.getDataName()));
-                    PrintUtil.printResults(ticket.search(PrintUtil.ORGANIZATION_ID, result.getId()), configFieldsUtil.getConfigFields(ticket.getDataName()));
-                }
-            });
-            break;
-        default:
-            break;
-        }
+        datastoreManager.searchAndPrintData(data.getDataName(), searchField, searchValue);
     }
 
     /**

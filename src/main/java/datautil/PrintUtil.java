@@ -1,11 +1,8 @@
 package datautil;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import datastore.Data;
 
@@ -66,9 +63,11 @@ public final class PrintUtil {
     public static void printResult(Data dataItem) {
         if (dataItem != null) {
             printData(NEW_LINE);
-            //Sort by keys
-            Map<String, Object> result = dataItem.getFields().entrySet().stream().sorted(Map.Entry.comparingByKey()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
-            result.forEach((k, v) -> System.out.printf("%-16s %s%n", k, v));
+            dataItem.getFields().entrySet().forEach( entry -> {
+                Object value = entry.getValue();
+                System.out.printf("%-16s %s%n", entry.getKey(), value);
+            });
+
         }
     }
 

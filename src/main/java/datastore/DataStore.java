@@ -94,6 +94,12 @@ public abstract class DataStore {
     public abstract String getDataName();
 
     /**
+     * Search the current entity data for matching data.
+     * @return List<Data> Matched data
+     */
+    public abstract List<Data> visit(Data result);
+
+    /**
      * The datastore search method by Id.
      * @param searchValue Searching value
      * @return matched data otherwise null.

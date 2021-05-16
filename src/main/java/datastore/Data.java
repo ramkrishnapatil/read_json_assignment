@@ -1,7 +1,7 @@
 package datastore;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import datautil.PrintUtil;
@@ -14,7 +14,7 @@ public class Data {
     private final Map<String, Object> fields;
 
     public Data(Map<String, Object> fieldsMap) {
-        fields = new HashMap<>();
+        fields = new LinkedHashMap<>();
         this.fields.putAll(fieldsMap);
     }
 

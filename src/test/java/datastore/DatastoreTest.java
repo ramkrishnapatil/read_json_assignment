@@ -90,4 +90,12 @@ public class DatastoreTest {
         dataList = organization.search(searchName, searchValue);
         Assert.assertEquals(0, dataList.size());
     }
+
+    @Test
+    public void searchDatastoreForNullValue() {
+        String searchName = "locale";
+        String searchValue = "";
+        List<Data> dataList = users.search(searchName, searchValue);
+        Assert.assertEquals(1, dataList.size());
+    }
 }

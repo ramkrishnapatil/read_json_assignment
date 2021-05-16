@@ -13,7 +13,7 @@ import datautil.PrintUtil;
  */
 public class ZendeskSearchMenu {
 
-    private ZendeskSearchApp searchApp;
+    private final ZendeskSearchApp searchApp;
 
     public ZendeskSearchMenu() {
         searchApp = new ZendeskSearchApp();

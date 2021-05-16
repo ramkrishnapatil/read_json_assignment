@@ -3,8 +3,8 @@ package datautil;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,19 +35,19 @@ public class PrintUtilTest {
 
     @Test
     public void printResult() {
-        Map<String, Object> dataMap = new HashMap<>();
+        Map<String, Object> dataMap = new LinkedHashMap<>();
         dataMap.put("_id", 1);
         dataMap.put("name", "Merry");
         dataMap.put("alias", "Cherry");
         Data data = new Data(dataMap);
         PrintUtil.printResult(data);
-        String printString = "_id              1\n" + "alias            Cherry\n" + "name             Merry";
+        String printString = "_id              1\n" + "name             Merry\n" + "alias            Cherry";
         Assert.assertEquals(printString.trim(), outContent.toString().trim().replaceAll("\r\n", "\n"));
     }
 
     @Test
     public void printResultWithConfigField() {
-        Map<String, Object> dataMap = new HashMap<>();
+        Map<String, Object> dataMap = new LinkedHashMap<>();
         String id = "_id";
         String name = "name";
         String alias = "alias";

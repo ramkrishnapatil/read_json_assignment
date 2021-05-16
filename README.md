@@ -72,4 +72,3 @@ ZendeskSearchApp:
 * Implement LRU cache to improve the search performance
 * Provide data print order option to user e.g. Ascending/Descending
 * Provide AND/OR criteria for searching
-* Implement Builder design pattern to include the results from related entity
