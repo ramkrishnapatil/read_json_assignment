@@ -1,7 +1,5 @@
 package datautil;
 
-import java.io.File;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,8 +28,7 @@ public class ConfigFieldsUtil {
 
         try {
             ClassLoader classLoader = getClass().getClassLoader();
-            File file = new File(classLoader.getResource(fileName).getFile());
-            List<Map<String, Object>> configData = ResourceLoader.loadFromJsonResource(file.toString());
+            List<Map<String, Object>> configData = ResourceLoader.loadFromJsonResource(classLoader.getResource(fileName));
 
             configData.forEach(config -> {
                 config.entrySet().forEach(stringObjectEntry -> {

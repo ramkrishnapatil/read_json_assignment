@@ -2,6 +2,7 @@ package datautil;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Paths;
 
 import java.util.ArrayList;
@@ -27,7 +28,8 @@ public final class ResourceLoader {
      * @param jsonFile Resource JSON file to deserialize
      * @return A list of maps read from the JSON file
      */
-    public static List<Map<String, Object>> loadFromJsonResource(String jsonFile) {
+    @SuppressWarnings("unchecked")
+    private static List<Map<String, Object>> loadFromJsonResource(String jsonFile) {
         List<Map<String, Object>> data = new ArrayList<>();
 
         try {
@@ -44,6 +46,21 @@ public final class ResourceLoader {
             PrintUtil.printData("Error while loading jsonFile: " + jsonFile + " : "  + ioe.getMessage());
         } catch (Exception exc) {
             PrintUtil.printData("Exception in loading jsonFile: " + jsonFile + " : "  + exc.getMessage());
+        }
+
+        return data;
+    }
+
+    public static List<Map<String, Object>> loadFromJsonResource(URL fileUrl) {
+        List<Map<String, Object>> data = new ArrayList<>();
+
+        try {
+            String jsonFile = new File(fileUrl.getFile()).toString();
+            return loadFromJsonResource(jsonFile);
+        } catch (NullPointerException npe) {
+            PrintUtil.printData("Unable to open jsonFile: " + fileUrl + " : " + npe.getMessage());
+        } catch (Exception exc) {
+            PrintUtil.printData("Exception in loading jsonFile: " + fileUrl + " : "  + exc.getMessage());
         }
 
         return data;

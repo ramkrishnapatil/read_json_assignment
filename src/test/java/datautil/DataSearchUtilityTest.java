@@ -1,7 +1,5 @@
 package datautil;
 
-import java.io.File;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -139,8 +137,7 @@ public class DataSearchUtilityTest {
     @Test
     public void searchableFieldExist() {
         ClassLoader classLoader = getClass().getClassLoader();
-        File fileName = new File(classLoader.getResource(USERS_FILE_NAME).getFile());
-        List<Map<String, Object>> dataList = ResourceLoader.loadFromJsonResource(fileName.toString());
+        List<Map<String, Object>> dataList = ResourceLoader.loadFromJsonResource(classLoader.getResource(USERS_FILE_NAME));
         String searchFieldExist = "_id";
         assertTrue(DataSearchUtility.searchableFields(dataList).contains(searchFieldExist));
         String searchFieldNotExist = "id";

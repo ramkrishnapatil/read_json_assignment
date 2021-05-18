@@ -41,12 +41,14 @@ public class ZendeskSearchApp {
         DataStore data;
         switch (menuOption) {
         case "1":
+//            PrintUtil.printData(userPojo.toString());
             data = user;
             break;
         case "2":
             data = ticket;
             break;
         case "3":
+//            PrintUtil.printData(organizationPojo.toString());
             data = organization;
             break;
         default:

@@ -1,7 +1,5 @@
 package datautil;
 
-import java.io.File;
-
 import java.util.List;
 import java.util.Map;
 
@@ -14,15 +12,15 @@ public class ResourceLoaderTest {
     public void testLoadFromJsonResource() {
         String jsonFile = "users.json";
         ClassLoader classLoader = getClass().getClassLoader();
-        File fileName = new File(classLoader.getResource(jsonFile).getFile());
-        List<Map<String, Object>> dataList = ResourceLoader.loadFromJsonResource(fileName.toString());
+        List<Map<String, Object>> dataList = ResourceLoader.loadFromJsonResource(classLoader.getResource(jsonFile));
         Assert.assertEquals(4, dataList.size());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testExceptionInLoadFromJsonResource() {
         String jsonFile = "users1.json";
         ClassLoader classLoader = getClass().getClassLoader();
-        new File(classLoader.getResource(jsonFile).getFile());
+        List<Map<String, Object>> dataList = ResourceLoader.loadFromJsonResource(classLoader.getResource(jsonFile));
+        Assert.assertEquals(0, dataList.size());
     }
 }

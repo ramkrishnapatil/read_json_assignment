@@ -1,6 +1,6 @@
 package datastore;
 
-import java.io.File;
+import java.net.URL;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,8 +27,8 @@ public abstract class DataStore {
      */
     protected DataStore(String fileName) {
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource(fileName).getFile());
-        List<Map<String, Object>> dataList = ResourceLoader.loadFromJsonResource(file.toString());
+        URL fileUrl = classLoader.getResource(fileName);
+        List<Map<String, Object>> dataList = ResourceLoader.loadFromJsonResource(fileUrl);
         this.fields = DataSearchUtility.searchableFields(dataList);
             idToDataMap = new HashMap<>();
             dataList.forEach(dataRecord -> {
